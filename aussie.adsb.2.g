@@ -1,8 +1,8 @@
 #!/usr/bin/env genyris
-@ns u   "http://www.genyris.org/lang/utilities#"
-@ns web "http://www.genyris.org/lang/web#"
 @ns date "http://www.genyris.org/lang/date#"
 @ns sys "http://www.genyris.org/lang/system#"
+@ns u   "http://www.genyris.org/lang/utilities#"
+@ns web "http://www.genyris.org/lang/web#"
 
 var URL 'http://aussieadsb.com/airportinfo/'
 
@@ -13,7 +13,7 @@ var airport
         else
             'YMML'
 
-def remove-multiple-spaces ((S = String))
+def remove-multiple-spaces ((S = String)) # TODO replace this with a string function, maybe a regex (replace)
     var try (S(.replace '  ' ' '))
     cond
         (equal? S try)
@@ -39,15 +39,20 @@ def fetch-raw-atis(URL airport)
 
 def pull-info (text)
     var result (graph)
-    var subject (os!ticks)
+    var id (intern (scale (/ (os!ticks) 1000) 0)) # e.g. 1752828247
+    result
+        .put id ^id id
+        .put id ^gmt-date-time (date:format-date (os!ticks) 'dd MMM yyyy HH:mm:ss z' 'GMT')
+        .put id ^local-date (date:format-date (os!ticks) 'dd MMM yyyy HH:mm:ss z' 'Australia/Melbourne')
+        .put id ^raw-data text
     for pattern in atis-patterns
         var regularex (right pattern)
         var attribute (left pattern)
         var matches (text(.regex regularex))
         cond
             (equal? 2 (length matches))
-                result(.put subject attribute (nth 1 matches))
-    cons subject result
+                result(.put id attribute (nth 1 matches))
+    cons id result
 
 var atis-patterns
     data
@@ -58,53 +63,79 @@ var atis-patterns
         approach = 'APCH: +([A-Z0-9 .]+) +[A-Z]+:' # APCH: EXP GLS OR ILS APCH
         runway = 'RWY: +([0-9RL]+) +[A-Z ]+:' # 'RWY: 27'
         runway-arrival = 'RWY: +([0-9RL]+) FOR ARR' # 'RWY: 27 FOR ARR'
+        runway-arrival = 'RWY: +([0-9RL]+ AND +[0-9RL]+) FOR ARR.'  # RWY: 27 AND 34 FOR ARR.
+        runway-departure = 'RWY +([0-9RL]+) FOR DEP ' # 'RWY 27 FOR DEP '
         runway-departure = 'RWY +([0-9RL]+) FOR DEPARTURES' # 'RWY 34 FOR DEPARTURES'
         runway-depart-via = 'RWY +[0-9RL]+ FOR DEPARTURES VIA ([ ,A-Z0-9]+)+RWY +[0-9]+' # 'RWY 34 FOR DEPARTURES VIA MNG NONIX, AND DOSEL, RWY 27
         runway-depart-other = 'RWY +([0-9RL]+) FOR ALL OTHER DEPARTURES' # 'RWY 27 FOR ALL OTHER DEPARTURES'
+        runway-depart-other = 'RUNWAY +([0-9RL]+) FOR ALL OTHER OPERATIONS' # RUNWAY 27 FOR ALL OTHER OPERATIONS
         wind-min = 'WI?ND: +([0-9]+)+-[0-9]+/[0-9]+' # 'WND: 250-320/12'
         wind-max = 'WI?ND: +[0-9]+-([0-9]+)/[0-9]+'  # 'WND: 250-320/12'
         wind-speed = 'WI?ND: +[-0-9]+/([0-9]+)' # 'WND: 250/12'
-        wind = 'WI?ND: +([0-9]+)/[0-9]+' # 'WND: 250/12'
+        wind-direction = 'WI?ND: +([0-9]+)/[0-9]+' # 'WND: 250/12'
         visability = 'VIS: +([A-Z 0-9]+) +[A-Z]+:' # VIS: GREATER THAN 10 KM
         cloud = 'CLD: +([A-Z0-9, ]+) +[A-Z]+:' # CLD: SCT035
         temperature = 'TMP: +([0-9]+) +[A-Z]+:' # TMP: 12
         pressure-qnh = 'QNH: +([0-9]+)' # QNH: 1013
-        operating-info = 'OPR INFO: +([A-Z0-9 ,.]+) +[A-Z]+:' # INFO: ABN UNSERVICEABLE AS PER NOTAM '
+        operating-info = 'OPR INFO: +([A-Z0-9 ,.]+) +[A-Z]+:' # OPR INFO: ABN UNSERVICEABLE AS PER NOTAM '
         max-crosswind = 'MAX XW ([0-9]+) KTS' # MAX XW 15 KTS
         weather = 'WX: +([A-Z0-9., ]+) +[A-Z]+:' # WX: CAVOK
+        runway-surface-condition = 'SFC COND: +([A-Z0-9., ]+) +[A-Z]+:' # SFC COND: RWY 27 SFC COND CODE 5, 5, 5. WHOLE RWY WET. RWY 34 SFC COND CODE 5, 5, 5. WHOLE RWY WET.
+        weather-significant = 'SIGWX: +([A-Z0-9 ]+)' # SIGWX: MOD TURB FCST BLW 5000 FT
 
 def fetch-and-parse (URL airport)
     var response (fetch-raw-atis URL airport)
     cond
         (null? (left response))
-            stderr(.format '%s\n' response)
-            #os!exit 2
+            stderr(.format 'ERROR %s\n' response)
+            nil
+        else
+            decode response
+
+def decode (response)
     var text (left (left response))
     setq text (text(.replace '+' ''))
     setq text  (remove-multiple-spaces text)
-
-    stderr(.format '%s\n' text)
     pull-info text
 
+@ns ntfy 'http://ntfy.sh/api'
+
+def ntfy:post(msg) # TODO module
+    os!exec 'curl' '-d' msg 'http://ntfy.sh/ATISYMML'
+
+def main (airport)
+    var code ''
+    while true
+        var data (fetch-and-parse URL airport)
+        cond
+            data
+                var S (left data)
+                var G (right data)
+                var new-code (G(.get S ^atis-code))
+                cond
+                    (not (equal? code new-code))
+                        setq code new-code
+                        ntfy:post ('%a\n\nThis notification not for navigational use!'(.format (G(.get S ^raw-data)) ))
+                        catch err
+                            ntfy:post
+                                '%a %a runway %a\n\nThis notification not for navigational use!'
+                                    .format
+                                        ~ (G(.get S ^airport-icao-code))
+                                        ~ (G(.get S ^atis-code))
+                                        ~ (G(.get S ^runway))
+                        cond
+                            err
+                                ntfy:post err
+                        for T in (G(.asTriples))
+                            print T
+        sleep (* 60 1000)
+
+def sys:getopt (index default)
+    cond
+        (> (length sys:argv) index)
+            (nth index sys:argv)
+        else
+            default
 
 var URL 'http://aussieadsb.com/airportinfo/'
-
-var airport
-    cond
-        (> (length sys:argv) 1)
-            (nth 1 sys:argv)
-        else
-            'YMML'
-
-var code ''
-while true
-    var data (fetch-and-parse URL airport)
-    var S (left data)
-    var G (right data)
-    var new-code (G(.get S ^atis-code))
-    cond
-        (not (equal? code new-code))
-            setq code new-code
-            for T in (G(.asTriples))
-                print T
-    sleep (* 60 1000)
+main (sys:getopt 1 'YMML')
