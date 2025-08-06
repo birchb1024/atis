@@ -1,8 +1,10 @@
 #!/usr/bin/env genyris
 @ns date "http://www.genyris.org/lang/date#"
-@ns sys "http://www.genyris.org/lang/system#"
-@ns u   "http://www.genyris.org/lang/utilities#"
-@ns web "http://www.genyris.org/lang/web#"
+@ns sys  "http://www.genyris.org/lang/system#"
+@ns u    "http://www.genyris.org/lang/utilities#"
+@ns web  "http://www.genyris.org/lang/web#"
+
+@ns ntfy 'http://ntfy.sh/api'
 
 var URL 'http://aussieadsb.com/airportinfo/'
 
@@ -87,6 +89,7 @@ def fetch-and-parse (URL airport)
     var response (fetch-raw-atis URL airport)
     cond
         (null? (left response))
+            ntfy:post 'ERROR' response
             stderr(.format 'ERROR %s\n' response)
             nil
         else
@@ -98,13 +101,32 @@ def decode (response)
     setq text  (remove-multiple-spaces text)
     pull-info text
 
-@ns ntfy 'http://ntfy.sh/api'
+var ntfy:topic-prefix 'http://ntfy.sh/ATISYMML'
 
-def ntfy:post(msg) # TODO module
-    os!exec 'curl' '-d' msg 'http://ntfy.sh/ATISYMML'
+def ntfy:post(topic msg) # TODO make a module
+    catch err
+        os!exec 'curl' '-d'
+            ~ ('%a\nThis notification not for navigational use!'(.format msg))
+            ~ ('%a%a'(.format ntfy:topic-prefix topic))
+    cond
+        err
+            os!exec 'curl' '-d' err ('%aERROR'(.format ntfy:topic-prefix))
+
+def get-runways(G S properties)
+    var result ()
+    for P in properties
+        var values (G(.get-list S P))
+        cond
+            values
+                setq result
+                    cons
+                        cons P values
+                        result
+    result
 
 def main (airport)
     var code ''
+    var runway ''
     while true
         var data (fetch-and-parse URL airport)
         cond
@@ -115,19 +137,19 @@ def main (airport)
                 cond
                     (not (equal? code new-code))
                         setq code new-code
-                        ntfy:post ('%a\n\nThis notification not for navigational use!'(.format (G(.get S ^raw-data)) ))
-                        catch err
-                            ntfy:post
-                                '%a %a runway %a\n\nThis notification not for navigational use!'
-                                    .format
-                                        ~ (G(.get S ^airport-icao-code))
-                                        ~ (G(.get S ^atis-code))
-                                        ~ (G(.get S ^runway))
-                        cond
-                            err
-                                ntfy:post err
                         for T in (G(.asTriples))
                             print T
+                        ntfy:post 'RAW' (G(.get S ^raw-data))
+                var new-runway (get-runways G S ^(runway runway-arrival runway-departure))
+                cond
+                    (not (equal? runway new-runway))
+                        setq runway new-runway
+                        ntfy:post 'RUNWAY'
+                            '%a runway %a\n%a'
+                                .format
+                                    ~ (G(.get S ^atis-code))
+                                    ~ runway
+                                    ~ (G(.get S ^raw-data))
         sleep (* 60 1000)
 
 def sys:getopt (index default)
