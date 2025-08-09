@@ -2,6 +2,7 @@
 @ns date "http://www.genyris.org/lang/date#"
 @ns sys  "http://www.genyris.org/lang/system#"
 @ns u    "http://www.genyris.org/lang/utilities#"
+@ns web  "http://www.genyris.org/lang/web"
 
 @ns ntfy 'http://ntfy.sh/api'
 
@@ -24,6 +25,20 @@ def remove-multiple-spaces ((Str = String)) # TODO replace this with a string fu
         else
             remove-multiple-spaces try
 
+def handle-error(err airport)
+    # maybe its down again
+    var url ('http://aussieadsb.com/airportinfo/'(.+ airport))
+    catch another-error
+        var response
+            web:get ('http://aussieadsb.com/airportinfo/%a'(.format airport))
+        var page ((left response)(.readAll))
+        cond
+            ((page(.match '.*Error retrieving NOTAMs.*')))
+                ntfy:post 'RAW' 'ATIS not available becuase "Error retrieving NOTAMs"'
+    cond another-error
+        ntfy:post 'ERROR' another-error
+        stderr(.format '\nERROR %s\nBACKTRACE %s\n' another-error bt)
+
 def fetch-raw-atis(URL airport)
     var url ('http://aussieadsb.com/airportinfo/'(.+ airport))
     var cmd ("curl -sS 'http://aussieadsb.com/airportinfo/%a' | tidy --doctype omit --add-xml-decl yes --output-xml yes -indent 2>/dev/null | xmllint --xpath \"//p[@class='monospace' and starts-with(text(), 'ATIS %a')]/text()\" - | tr '\n'  ' ' "(.format airport airport))
@@ -34,7 +49,7 @@ def fetch-raw-atis(URL airport)
         #print (list @LINE result)
     cond
         err
-            stderr(.format '\nERROR %s\nBACKTRACE %s\n' err bt)
+            handle-error
     result
 
 
