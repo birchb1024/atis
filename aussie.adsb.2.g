@@ -5,6 +5,8 @@
 
 @ns ntfy 'http://ntfy.sh/api'
 
+include 'ntfy.g'
+
 var URL 'http://aussieadsb.com/airportinfo/'
 
 var airport
@@ -14,15 +16,13 @@ var airport
         else
             'YMML'
 
-def remove-multiple-spaces ((S = String)) # TODO replace this with a string function, maybe a regex (replace)
-    var try (S(.replace '  ' ' '))
+def remove-multiple-spaces ((Str = String)) # TODO replace this with a string function, maybe a regex (replace)
+    var try (Str(.replace '  ' ' '))
     cond
-        (equal? S try)
-            S
+        (equal? Str try)
+            Str
         else
             remove-multiple-spaces try
-
-
 
 def fetch-raw-atis(URL airport)
     var url ('http://aussieadsb.com/airportinfo/'(.+ airport))
@@ -53,7 +53,7 @@ def pull-info (text)
         cond
             (equal? 2 (length matches))
                 result(.put id attribute (nth 1 matches))
-    cons id result
+    result
 
 var atis-patterns
     data
@@ -88,7 +88,7 @@ def fetch-and-parse (URL airport)
     var response (fetch-raw-atis URL airport)
     cond
         (null? (left response))
-            ntfy:post 'ERROR' response
+            ntfy:post 'ERROR' ('ERROR with %s %a%a'(.format response URL airport))
             stderr(.format 'ERROR %s\n' response)
             nil
         else
@@ -100,21 +100,10 @@ def decode (response)
     setq text  (remove-multiple-spaces text)
     pull-info text
 
-var ntfy:topic-prefix 'http://ntfy.sh/ATISYMML'
-
-def ntfy:post(topic msg) # TODO make a module
-    catch err
-        os!exec 'curl' '-d'
-            ~ ('%a\nThis notification not for navigational use!'(.format msg))
-            ~ ('%a%a'(.format ntfy:topic-prefix topic))
-    cond
-        err
-            os!exec 'curl' '-d' err ('%aERROR'(.format ntfy:topic-prefix))
-
-def get-runways(G S properties)
+def get-runways(info id properties)
     var result ()
     for P in properties
-        var values (G(.get-list S P))
+        var values (info(.get-list id P))
         cond
             values
                 setq result
@@ -123,32 +112,45 @@ def get-runways(G S properties)
                         result
     result
 
+
 def main (airport)
-    var code ''
-    var runway ''
-    while true
-        var data (fetch-and-parse URL airport)
+    ntfy:post 'RAW' ('started %a'(.format @FILE))
+    ntfy:post 'RUNWAY' ('started %a'(.format @FILE))
+    var code nil
+    var runways nil
+
+    def notify-if-atis-code-changed(info id)
+        var new-code (info(.get id ^atis-code))
+        print ('code %a %a %a'(.format @FILE @LINE new-code))
         cond
-            data
-                var S (left data)
-                var G (right data)
-                var new-code (G(.get S ^atis-code))
-                cond
-                    (not (equal? code new-code))
-                        setq code new-code
-                        for T in (G(.asTriples))
-                            print T
-                        ntfy:post 'RAW' (G(.get S ^raw-data))
-                var new-runway (get-runways G S ^(runway runway-arrival runway-departure))
-                cond
-                    (not (equal? runway new-runway))
-                        setq runway new-runway
-                        ntfy:post 'RUNWAY'
-                            '%a runway %a\n%a'
-                                .format
-                                    ~ (G(.get S ^atis-code))
-                                    ~ runway
-                                    ~ (G(.get S ^raw-data))
+            (not (equal? code new-code))
+                setq code new-code
+                for T in (info(.asTriples))
+                    print T
+                ntfy:post 'RAW' (info(.get id ^raw-data))
+
+    def notify-if-runways-changed(info id)
+        var new-runway (get-runways info id ^(runway runway-arrival runway-departure))
+        print ('runways %a %a %a'(.format @FILE @LINE new-runway))
+        cond
+            (not (equal? runways new-runway))
+                setq runways new-runway
+                ntfy:post 'RUNWAY'
+                    '%a runway %a\n\n%a'
+                        .format
+                            ~ (info(.get id ^atis-code))
+                            ~ runways
+                            ~ (info(.get id ^raw-data))
+
+    while true
+        var info (fetch-and-parse URL airport)
+        cond
+            info
+                for T in (info(.asTriples))
+                    print T
+                var id (left (info(.subjects)))
+                notify-if-atis-code-changed info id
+                notify-if-runways-changed info id
         sleep (* 60 1000)
 
 def sys:getopt (index default)
