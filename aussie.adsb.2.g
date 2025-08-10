@@ -2,7 +2,7 @@
 @ns date "http://www.genyris.org/lang/date#"
 @ns sys  "http://www.genyris.org/lang/system#"
 @ns u    "http://www.genyris.org/lang/utilities#"
-@ns web  "http://www.genyris.org/lang/web"
+@ns web  "http://www.genyris.org/lang/web#"
 
 @ns ntfy 'http://ntfy.sh/api'
 
@@ -17,7 +17,7 @@ var airport
         else
             'YMML'
 
-def remove-multiple-spaces ((Str = String)) # TODO replace this with a string function, maybe a regex (replace)
+def remove-multiple-spaces ((Str = String)) # TODO replace this with a string function, maybe a regex (replace) or maybe split on '  ' and recombine with join
     var try (Str(.replace '  ' ' '))
     cond
         (equal? Str try)
@@ -25,31 +25,38 @@ def remove-multiple-spaces ((Str = String)) # TODO replace this with a string fu
         else
             remove-multiple-spaces try
 
+def contains((S = String) (P = String))
+    > (length (S(.split P))) 1
+
 def handle-error(err airport)
     # maybe its down again
-    var url ('http://aussieadsb.com/airportinfo/'(.+ airport))
+    var url (URL(.+ airport))
     catch another-error
         var response
-            web:get ('http://aussieadsb.com/airportinfo/%a'(.format airport))
+            web:get ('%a/%a'(.format URL airport))
+        print (list @LINE response)
         var page ((left response)(.readAll))
         cond
-            ((page(.match '.*Error retrieving NOTAMs.*')))
-                ntfy:post 'RAW' 'ATIS not available becuase "Error retrieving NOTAMs"'
-    cond another-error
-        ntfy:post 'ERROR' another-error
-        stderr(.format '\nERROR %s\nBACKTRACE %s\n' another-error bt)
+            (contains page 'Error retrieving NOTAMs')
+                wall 'aussieadsb says "Error retrieving NOTAMs"'
+    cond
+        another-error
+            ntfy:post 'ERROR' another-error
+            stderr(.format '\nERRORS %s %s\n' err another-error)
 
 def fetch-raw-atis(URL airport)
-    var url ('http://aussieadsb.com/airportinfo/'(.+ airport))
-    var cmd ("curl -sS 'http://aussieadsb.com/airportinfo/%a' | tidy --doctype omit --add-xml-decl yes --output-xml yes -indent 2>/dev/null | xmllint --xpath \"//p[@class='monospace' and starts-with(text(), 'ATIS %a')]/text()\" - | tr '\n'  ' ' "(.format airport airport))
-    #print (list @LINE url cmd)
+    var url (URL(.+ airport))
+    var cmd ("curl -sS '%a%a' | tidy --doctype omit --add-xml-decl yes --output-xml yes -indent 2>/dev/null | xmllint --xpath \"//p[@class='monospace' and starts-with(text(), 'ATIS %a')]/text()\" - | tr '\n'  ' ' "(.format URL airport airport))
     var result nil
     catch (err bt)
         setq result (os!exec '/bin/bash' '-c' cmd)
-        #print (list @LINE result)
+        print (list @LINE result)
+        cond
+             (not (left result))
+                handle-error err airport
     cond
         err
-            handle-error
+            handle-error err airport
     result
 
 
@@ -127,10 +134,37 @@ def get-runways(info id properties)
                         result
     result
 
+def verbose(info)
+    var Ps ()
+    cond
+        (> 1 (length (info(.subjects))))
+            stderr(.format 'bad graph input to verbose %s' (info(.asTriples)))
+            os!exit 1
+    var ID (left (info(.subjects)))
+
+    var buffer (Pipe!open 'verbose')
+    var out-writer (buffer(.output))
+    for T in (info(.asTriples))
+        setq Ps (cons T!predicate Ps)
+    for P in (sort Ps)
+        #print (list @LINE ID P (info(.get-list ID P)))
+       cond
+        (not (equal? ^raw-data P))
+            var O (info(.get ID P))
+            out-writer
+                .format "%a: %a\n" P O
+    (buffer(.input))(.readAll)
+
+def spam (topics msg)
+    stderr(.format 'spam: %a\n' msg)
+    for Topic in topics
+        ntfy:post Topic msg
+
+def wall (msg)
+    spam ^('ERROR') msg #^('ERROR' 'RAW' 'RUNWAY' 'VERBOSE') # rate limited!
 
 def main (airport)
-    ntfy:post 'RAW' ('started %a'(.format @FILE))
-    ntfy:post 'RUNWAY' ('started %a'(.format @FILE))
+    wall ('started %s'(.format @FILE))
     var code nil
     var runways nil
 
@@ -140,9 +174,10 @@ def main (airport)
         cond
             (not (equal? code new-code))
                 setq code new-code
-                for T in (info(.asTriples))
-                    print T
+                var V (verbose info)
                 ntfy:post 'RAW' (info(.get id ^raw-data))
+                ntfy:post 'VERBOSE' V
+                display V
 
     def notify-if-runways-changed(info id)
         var new-runway (get-runways info id ^(runway runway-arrival runway-departure))
@@ -175,5 +210,4 @@ def sys:getopt (index default)
         else
             default
 
-var URL 'http://aussieadsb.com/airportinfo/'
 main (sys:getopt 1 'YMML')

@@ -5,6 +5,14 @@
 @ns ntfy 'http://ntfy.sh/api'
 @ns web  "http://www.genyris.org/lang/web#"
 
+def nth-right(N P)
+    cond
+        (equal? N 0)
+            P
+        else
+            nth-right (- N 1) (right P)
+
+
 # Configure the next line for custom topics
 var ntfy:topic-prefix 'http://ntfy.sh/ATISYMML'
 
@@ -14,6 +22,9 @@ def ntfy:post(topic msg)
     catch err
         setq response
             web:post ('%a%a' (.format ntfy:topic-prefix topic)) msg ^(('Content-Type' = 'text/plain'))
+        cond
+            (not (equal? 200 (nth 2 response)))
+                stderr(.format 'ERROR ntfy:post %s\n' (nth-right 2 response))
     cond
         err
             stderr(.format 'ERROR in web:post %s' err)
