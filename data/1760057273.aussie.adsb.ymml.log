@@ -1,0 +1,56 @@
+53 (('ATIS YMML T 100007                    APCH: EXP GLS OR RNP APCH                    RWY: 34                    OPR INFO: ALL DEPARTURES MUST REQUEST PUSH BACK                   ON 127.2                    + WND: 320/22-32, MAX XW 20.                    VIS: GREATER THAN 10 KM                     CLD: FEW042                    TMP: 19                    QNH: 1009                    SIGWX: SEV TURB FCST BLW 5000 FT '))
+(triple 1760057276 weather-significant 'SEV TURB FCST BLW 5000 FT ')
+(triple 1760057276 operating-info 'ALL DEPARTURES MUST REQUEST PUSH BACK ON 127.2')
+(triple 1760057276 pressure-qnh '1009')
+(triple 1760057276 temperature '19')
+(triple 1760057276 cloud 'FEW042')
+(triple 1760057276 visability 'GREATER THAN 10 KM')
+(triple 1760057276 wind-direction '320')
+(triple 1760057276 wind-speed '22')
+(triple 1760057276 runway '34')
+(triple 1760057276 approach 'EXP GLS OR RNP APCH')
+(triple 1760057276 date-time '100007')
+(triple 1760057276 atis-code 'T')
+(triple 1760057276 airport-icao-code 'YMML')
+(triple 1760057276 raw-data 'ATIS YMML T 100007 APCH: EXP GLS OR RNP APCH RWY: 34 OPR INFO: ALL DEPARTURES MUST REQUEST PUSH BACK ON 127.2 WND: 320/22-32, MAX XW 20. VIS: GREATER THAN 10 KM CLD: FEW042 TMP: 19 QNH: 1009 SIGWX: SEV TURB FCST BLW 5000 FT ')
+(triple 1760057276 local-date '10 Oct 2025 11:47:56 AEDT')
+(triple 1760057276 gmt-date-time '10 Oct 2025 00:47:55 GMT')
+(triple 1760057276 id 1760057276)
+~ 'code aussie.adsb.2.g 177 T'
+airport-icao-code: YMML
+approach: EXP GLS OR RNP APCH
+atis-code: T
+cloud: FEW042
+date-time: 100007
+gmt-date-time: 10 Oct 2025 00:47:55 GMT
+id: 1760057276
+local-date: 10 Oct 2025 11:47:56 AEDT
+operating-info: ALL DEPARTURES MUST REQUEST PUSH BACK ON 127.2
+pressure-qnh: 1009
+runway: 34
+temperature: 19
+visability: GREATER THAN 10 KM
+weather-significant: SEV TURB FCST BLW 5000 FT 
+wind-direction: 320
+wind-speed: 22
+~ 'runways aussie.adsb.2.g 188 ((runway 34))'
+53 (('ATIS YMML T 100007                    APCH: EXP GLS OR RNP APCH                    RWY: 34                    OPR INFO: ALL DEPARTURES MUST REQUEST PUSH BACK                   ON 127.2                    + WND: 320/22-32, MAX XW 20.                    VIS: GREATER THAN 10 KM                     CLD: FEW042                    TMP: 19                    QNH: 1009                    SIGWX: SEV TURB FCST BLW 5000 FT '))
+(triple 1760057337 weather-significant 'SEV TURB FCST BLW 5000 FT ')
+(triple 1760057337 operating-info 'ALL DEPARTURES MUST REQUEST PUSH BACK ON 127.2')
+(triple 1760057337 pressure-qnh '1009')
+(triple 1760057337 temperature '19')
+(triple 1760057337 cloud 'FEW042')
+(triple 1760057337 visability 'GREATER THAN 10 KM')
+(triple 1760057337 wind-direction '320')
+(triple 1760057337 wind-speed '22')
+(triple 1760057337 runway '34')
+(triple 1760057337 approach 'EXP GLS OR RNP APCH')
+(triple 1760057337 date-time '100007')
+(triple 1760057337 atis-code 'T')
+(triple 1760057337 airport-icao-code 'YMML')
+(triple 1760057337 raw-data 'ATIS YMML T 100007 APCH: EXP GLS OR RNP APCH RWY: 34 OPR INFO: ALL DEPARTURES MUST REQUEST PUSH BACK ON 127.2 WND: 320/22-32, MAX XW 20. VIS: GREATER THAN 10 KM CLD: FEW042 TMP: 19 QNH: 1009 SIGWX: SEV TURB FCST BLW 5000 FT ')
+(triple 1760057337 local-date '10 Oct 2025 11:48:57 AEDT')
+(triple 1760057337 gmt-date-time '10 Oct 2025 00:48:57 GMT')
+(triple 1760057337 id 1760057337)
+~ 'code aussie.adsb.2.g 177 T'
+~ 'runways aussie.adsb.2.g 188 ((runway 34))'

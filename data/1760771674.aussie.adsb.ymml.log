@@ -1,0 +1,104 @@
+53 (('ATIS YMML V 180648                    APCH: EXP GLS OR ILS APCH                    RWY: 16 FOR ARR. RWY 27 FOR DEP                    + WND: 150/10. MAX TW5, RWY 27.                    WX: CAVOK                    + TMP: 20                    QNH: 1014 '))
+(triple 1760771677 weather 'CAVOK')
+(triple 1760771677 pressure-qnh '1014')
+(triple 1760771677 temperature '20')
+(triple 1760771677 wind-direction '150')
+(triple 1760771677 wind-speed '10')
+(triple 1760771677 runway-departure '27')
+(triple 1760771677 runway-arrival '16')
+(triple 1760771677 approach 'EXP GLS OR ILS APCH')
+(triple 1760771677 date-time '180648')
+(triple 1760771677 atis-code 'V')
+(triple 1760771677 airport-icao-code 'YMML')
+(triple 1760771677 raw-data 'ATIS YMML V 180648 APCH: EXP GLS OR ILS APCH RWY: 16 FOR ARR. RWY 27 FOR DEP WND: 150/10. MAX TW5, RWY 27. WX: CAVOK TMP: 20 QNH: 1014 ')
+(triple 1760771677 local-date '18 Oct 2025 18:14:36 AEDT')
+(triple 1760771677 gmt-date-time '18 Oct 2025 07:14:36 GMT')
+(triple 1760771677 id 1760771677)
+~ 'code aussie.adsb.2.g 177 V'
+airport-icao-code: YMML
+approach: EXP GLS OR ILS APCH
+atis-code: V
+date-time: 180648
+gmt-date-time: 18 Oct 2025 07:14:36 GMT
+id: 1760771677
+local-date: 18 Oct 2025 18:14:36 AEDT
+pressure-qnh: 1014
+runway-arrival: 16
+runway-departure: 27
+temperature: 20
+weather: CAVOK
+wind-direction: 150
+wind-speed: 10
+~ 'runways aussie.adsb.2.g 188 ((runway-departure 27) (runway-arrival 16))'
+53 (('ATIS YMML V 180648                    APCH: EXP GLS OR ILS APCH                    RWY: 16 FOR ARR. RWY 27 FOR DEP                    + WND: 150/10. MAX TW5, RWY 27.                    WX: CAVOK                    + TMP: 20                    QNH: 1014 '))
+(triple 1760771738 weather 'CAVOK')
+(triple 1760771738 pressure-qnh '1014')
+(triple 1760771738 temperature '20')
+(triple 1760771738 wind-direction '150')
+(triple 1760771738 wind-speed '10')
+(triple 1760771738 runway-departure '27')
+(triple 1760771738 runway-arrival '16')
+(triple 1760771738 approach 'EXP GLS OR ILS APCH')
+(triple 1760771738 date-time '180648')
+(triple 1760771738 atis-code 'V')
+(triple 1760771738 airport-icao-code 'YMML')
+(triple 1760771738 raw-data 'ATIS YMML V 180648 APCH: EXP GLS OR ILS APCH RWY: 16 FOR ARR. RWY 27 FOR DEP WND: 150/10. MAX TW5, RWY 27. WX: CAVOK TMP: 20 QNH: 1014 ')
+(triple 1760771738 local-date '18 Oct 2025 18:15:38 AEDT')
+(triple 1760771738 gmt-date-time '18 Oct 2025 07:15:38 GMT')
+(triple 1760771738 id 1760771738)
+~ 'code aussie.adsb.2.g 177 V'
+~ 'runways aussie.adsb.2.g 188 ((runway-departure 27) (runway-arrival 16))'
+53 (('ATIS YMML V 180648                    APCH: EXP GLS OR ILS APCH                    RWY: 16 FOR ARR. RWY 27 FOR DEP                    + WND: 150/10. MAX TW5, RWY 27.                    WX: CAVOK                    + TMP: 20                    QNH: 1014 '))
+(triple 1760771798 weather 'CAVOK')
+(triple 1760771798 pressure-qnh '1014')
+(triple 1760771798 temperature '20')
+(triple 1760771798 wind-direction '150')
+(triple 1760771798 wind-speed '10')
+(triple 1760771798 runway-departure '27')
+(triple 1760771798 runway-arrival '16')
+(triple 1760771798 approach 'EXP GLS OR ILS APCH')
+(triple 1760771798 date-time '180648')
+(triple 1760771798 atis-code 'V')
+(triple 1760771798 airport-icao-code 'YMML')
+(triple 1760771798 raw-data 'ATIS YMML V 180648 APCH: EXP GLS OR ILS APCH RWY: 16 FOR ARR. RWY 27 FOR DEP WND: 150/10. MAX TW5, RWY 27. WX: CAVOK TMP: 20 QNH: 1014 ')
+(triple 1760771798 local-date '18 Oct 2025 18:16:38 AEDT')
+(triple 1760771798 gmt-date-time '18 Oct 2025 07:16:38 GMT')
+(triple 1760771798 id 1760771798)
+~ 'code aussie.adsb.2.g 177 V'
+~ 'runways aussie.adsb.2.g 188 ((runway-departure 27) (runway-arrival 16))'
+53 (('ATIS YMML V 180648                    APCH: EXP GLS OR ILS APCH                    RWY: 16 FOR ARR. RWY 27 FOR DEP                    + WND: 150/10. MAX TW5, RWY 27.                    WX: CAVOK                    + TMP: 20                    QNH: 1014 '))
+(triple 1760771858 weather 'CAVOK')
+(triple 1760771858 pressure-qnh '1014')
+(triple 1760771858 temperature '20')
+(triple 1760771858 wind-direction '150')
+(triple 1760771858 wind-speed '10')
+(triple 1760771858 runway-departure '27')
+(triple 1760771858 runway-arrival '16')
+(triple 1760771858 approach 'EXP GLS OR ILS APCH')
+(triple 1760771858 date-time '180648')
+(triple 1760771858 atis-code 'V')
+(triple 1760771858 airport-icao-code 'YMML')
+(triple 1760771858 raw-data 'ATIS YMML V 180648 APCH: EXP GLS OR ILS APCH RWY: 16 FOR ARR. RWY 27 FOR DEP WND: 150/10. MAX TW5, RWY 27. WX: CAVOK TMP: 20 QNH: 1014 ')
+(triple 1760771858 local-date '18 Oct 2025 18:17:38 AEDT')
+(triple 1760771858 gmt-date-time '18 Oct 2025 07:17:38 GMT')
+(triple 1760771858 id 1760771858)
+~ 'code aussie.adsb.2.g 177 V'
+~ 'runways aussie.adsb.2.g 188 ((runway-departure 27) (runway-arrival 16))'
+53 (('ATIS YMML V 180648                    APCH: EXP GLS OR ILS APCH                    RWY: 16 FOR ARR. RWY 27 FOR DEP                    + WND: 150/10. MAX TW5, RWY 27.                    WX: CAVOK                    + TMP: 20                    QNH: 1014 '))
+(triple 1760771918 weather 'CAVOK')
+(triple 1760771918 pressure-qnh '1014')
+(triple 1760771918 temperature '20')
+(triple 1760771918 wind-direction '150')
+(triple 1760771918 wind-speed '10')
+(triple 1760771918 runway-departure '27')
+(triple 1760771918 runway-arrival '16')
+(triple 1760771918 approach 'EXP GLS OR ILS APCH')
+(triple 1760771918 date-time '180648')
+(triple 1760771918 atis-code 'V')
+(triple 1760771918 airport-icao-code 'YMML')
+(triple 1760771918 raw-data 'ATIS YMML V 180648 APCH: EXP GLS OR ILS APCH RWY: 16 FOR ARR. RWY 27 FOR DEP WND: 150/10. MAX TW5, RWY 27. WX: CAVOK TMP: 20 QNH: 1014 ')
+(triple 1760771918 local-date '18 Oct 2025 18:18:38 AEDT')
+(triple 1760771918 gmt-date-time '18 Oct 2025 07:18:38 GMT')
+(triple 1760771918 id 1760771918)
+~ 'code aussie.adsb.2.g 177 V'
+~ 'runways aussie.adsb.2.g 188 ((runway-departure 27) (runway-arrival 16))'
