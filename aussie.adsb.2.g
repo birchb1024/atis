@@ -17,7 +17,7 @@ var airport
         else
             'YMML'
 
-def remove-multiple-spaces ((Str = String)) # TODO replace this with a string function, maybe a regex (replace) or maybe split on '  ' and recombine with join
+def remove-multiple-spaces ((Str = String)) # TODO replace this with a string function, maybe a regex (replace) or maybe split on regex ' +' and recombine with join
     var try (Str(.replace '  ' ' '))
     cond
         (equal? Str try)
@@ -41,7 +41,7 @@ def handle-error(err airport)
                 wall 'aussieadsb says "Error retrieving NOTAMs"'
     cond
         another-error
-            ntfy:post 'ERROR' another-error
+            #ntfy:post 'ERROR' another-error
             stderr(.format '\nERRORS %s %s\n' err another-error)
 
 def fetch-raw-atis(URL airport)
@@ -106,6 +106,10 @@ var atis-patterns
         runway-surface-condition = 'SFC COND: +([A-Z0-9., ]+) +[A-Z]+:' # SFC COND: RWY 27 SFC COND CODE 5, 5, 5. WHOLE RWY WET. RWY 34 SFC COND CODE 5, 5, 5. WHOLE RWY WET.
         weather-significant = 'SIGWX: +([A-Z0-9 ]+)' # SIGWX: MOD TURB FCST BLW 5000 FT
 
+# TODO Parse this Wind format properly: WND: 220 DEG MNM 18 KTS, MAX 30 KTS, MAX XW 20 KTS
+
+
+
 def fetch-and-parse (URL airport)
     var response (fetch-raw-atis URL airport)
     cond
@@ -161,7 +165,7 @@ def spam (topics msg)
         ntfy:post Topic msg
 
 def wall (msg)
-    spam ^('ERROR') msg #^('ERROR' 'RAW' 'RUNWAY' 'VERBOSE') # rate limited!
+    spam ^('ERROR') msg
 
 def main (airport)
     wall ('started %s'(.format @FILE))
